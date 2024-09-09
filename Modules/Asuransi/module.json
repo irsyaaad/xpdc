@@ -1,0 +1,13 @@
+{
+    "name": "Asuransi",
+    "alias": "asuransi",
+    "description": "",
+    "keywords": [],
+    "order": 0,
+    "providers": [
+        "Modules\\Asuransi\\Providers\\AsuransiServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

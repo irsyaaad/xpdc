@@ -1,0 +1,5 @@
+@include('busdev::metronictigelapan-template.header-adminbusdev')
+@include('busdev::metronictigelapan-template.appbar-adminbusdev')
+@include('busdev::metronictigelapan-template.sidebar-adminbusdev')
+@include($content)
+@include('busdev::metronictigelapan-template.footer-adminbusdev')

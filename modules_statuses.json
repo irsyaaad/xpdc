@@ -1,0 +1,15 @@
+{
+    "Master": true,
+    "Keuangan": true,
+    "Operasional": true,
+    "Operational": true,
+    "Request": true,
+    "DMProyeksiRequest": true,
+    "Model": true,
+    "Grouplayanan": true,
+    "Kepegawaian": true,
+    "Busdev": true,
+    "Controller": true,
+    "VendorBusdevController": true,
+    "Asuransi": true
+}

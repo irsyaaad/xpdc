@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+	<meta charset="utf-8" />
+	<title>
+		Bpee Apps
+	</title>
+	<meta name="description" content="Latest updates and statistic charts">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	
+	<link href="{{ asset('assets/vendors/custom/fullcalendar/fullcalendar.bundle.css') }}" rel="stylesheet" type="text/css" />
+	
+	<link href="{{ asset('assets/vendors/base/vendors.bundle.css') }}" rel="stylesheet" type="text/css" />
+	<link href="{{ asset('assets/base/style.bundle.css') }}" rel="stylesheet" type="text/css" />
+	<link href="{{ asset('assets/base/style.custom.css') }}" rel="stylesheet" type="text/css" />
+	
+	<link rel="shortcut icon" href="{{ asset('img/logo-bpee.png') }}" />
+	<script src="{{ asset('assets/vendors/base/vendors.bundle.js') }}" type="text/javascript"></script>
+	<script src="{{ asset('assets/base/scripts.bundle.js') }}" type="text/javascript"></script>
+	<script src="{{ asset('assets/vendors/custom/fullcalendar/fullcalendar.bundle.js') }}" type="text/javascript"></script>
+	<script src="{{ asset('assets/app/js/dashboard.js') }}" type="text/javascript"></script>
+	
+	<style type="text/css">
+		.span-required{
+			color: red;
+		}
+		
+		.span-success{
+			color: green;
+		}
+		
+		.class-edit{
+			text-decoration: underline;
+			/* font-weight: bold; */
+		}
+		
+		@font-face {
+			font-family: poppins;
+			src: url("{{ asset('font/Poppins-Light.otf') }}");
+		}
+		
+		body {
+			width: 100% !important;
+			height: 100% !important;
+			font-family: 'poppins' !important;
+			font-size: 10pt !important;
+			
+		}
+		
+		.m-subheader__title {
+			font-family: 'poppins' !important;
+		}
+		
+		.m-portlet__head-text{
+			font-family: 'poppins' !important;
+		}
+		
+		.select2 {
+			width:100%!important;
+		}
+		
+		.badge.badge-md {
+			font-size: 9pt;
+		}
+		.tr-bold{
+			font-weight: bold !important;
+		}
+	</style>
+	@yield("style")
+	
+</head>
+
+<body class="m-page--fluid m--skin- m-content--skin-light2 m-header--fixed m-header--fixed-mobile m-aside-left--enabled m-aside-left--skin m-aside-left--offcanvas m-footer--push m-aside--offcanvas-default">
+	<div class="m-grid m-grid--hor m-grid--root m-page">
+		@include('template.header')
+		@include('template.sidebar')
+		@include('template.breadcumb')
+		@include('inc.delete')
+	</div>
+</body>
+
+<script type="text/javascript">
+	@if(Request::segment(2)==null or Request::segment(2)=="filter" or Request::segment(2)=="page")
+	$("#generalSearch").on("keyup", function() {
+		var value = $(this).val().toLowerCase();
+		$("#html_table tbody tr").filter(function() {
+			$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+		});
+	});
+	
+	$("#html_table").css("margin-top", "-2%");
+	@endif
+	
+	$(document).ready(function() {
+		if ($(window).width() > 300 && $(window).width() < 1000) {
+			$("#img-logo").css("width", "30%");
+		}
+		else {
+			$("#img-logo").css("width", "100%");
+		}
+		
+		if ($(window).width() <= 768) {
+			$("#collapseOne").removeClass("show");
+			$("#headingOne").show();
+		}else{
+			$("#collapseOne").addClass("show");
+			$("#headingOne").hide();
+		}
+		
+		$(window).resize(function() {
+			if ($(window).width() > 300 && $(window).width() < 1000) {
+				$("#img-logo").css("width", "30%");
+			}
+			else {
+				$("#img-logo").css("width", "100%");
+			}
+			
+			if ($(window).width() <= 768) {
+				$("#collapseOne").removeClass("show");
+				$("#headingOne").show();
+			}else{
+				$("#collapseOne").addClass("show");
+				$("#headingOne").hide();
+			}
+		});
+	});
+</script>
+
+@yield('script')
+
+</html>

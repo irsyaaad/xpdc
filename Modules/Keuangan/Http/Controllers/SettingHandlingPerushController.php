@@ -1,0 +1,202 @@
+<?php
+
+namespace Modules\Keuangan\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Routing\Controller;
+use Modules\Keuangan\Entities\SettingHandlingPerush;
+use Modules\Keuangan\Entities\SettingHandling;
+use Modules\Keuangan\Entities\ACPerush;
+use App\Models\Perusahaan;
+use Modules\Keuangan\Http\Requests\SettingHandlingRequest;
+use DB;
+use Auth;
+use Exception;
+
+class SettingHandlingPerushController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function index()
+    {
+        $data["data"] = SettingHandlingPerush::getData(Session("perusahaan")["id_perush"]);
+
+        return view('keuangan::settinghandling.index', $data);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     * @return Response
+     */
+    public function create()
+    {
+        $data["pendapatan"] = ACPerush::getPiutang("pendapatan");
+        $data["piutang"] = ACPerush::getPiutang("piutang");
+        $data["hutang"] = ACPerush::getPiutang("hutang");
+        $data["biaya"] = ACPerush::getPiutang("biaya");
+        $data["perush"] = Perusahaan::select("id_perush", "nm_perush")->where("id_perush", "!=", Session("perusahaan")["id_perush"])->get();
+        
+        return view('keuangan::settinghandling.index', $data);
+    }
+
+    public function generate()
+    {
+        DB::beginTransaction();
+        try {
+            $data = SettingHandling::all();
+            $setting = [];
+            foreach($data as $key => $value){
+                $setting[$key]["id_user"]              = Auth::user()->id_user;
+                $setting[$key]["ac4_piutang_penerima"]        = $value->ac4_piutang_penerima;
+                $setting[$key]["ac4_pend_penerima"]        = $value->ac4_pend_penerima;
+                $setting[$key]["ac4_hutang"]         = $value->ac4_hutang;
+                $setting[$key]["ac4_biaya"]          = $value->ac4_biaya;
+                $setting[$key]["id_perush"]            = Session("perusahaan")["id_perush"];
+                $setting[$key]["created_at"]     = date("Y-m-d h:i:s");
+                $setting[$key]["updated_at"]     = date("Y-m-d h:i:s");
+            }
+
+            SettingHandlingPerush::insert($setting);
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::commit();
+            return redirect()->back()->with('error', 'Data Setting Handling Gagal Disimpan '.$e->getMessage());
+        }
+        
+        return redirect(route_redirect())->with('success', 'Data Setting Handling  Disimpan');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * @param Request $request
+     * @return Response
+     */
+    public function store(Request $request)
+    {
+        $id_perush = Session("perusahaan")["id_perush"];
+        $cek = SettingHandlingPerush::where("ac4_pend_penerima", $request->ac4_pend_penerima)
+        ->where("ac4_piutang_penerima", $request->ac4_piutang_penerima)
+        ->where("ac4_hutang", $request->ac4_hutang)
+        ->where("ac4_biaya", $request->ac4_biaya)
+        ->where("id_perush", $id_perush)
+        ->get()->first();
+        
+        if($cek!=null){
+            return redirect()->back()->with('error', 'Data Setting Handling Sudah Ada ! ');
+        }
+        
+        DB::beginTransaction();
+        try {
+            
+            $setting                                = new SettingHandlingPerush();
+            $setting->id_user                       = Auth::user()->id_user;
+            $setting->ac4_pend_penerima             = $request->ac4_pend_penerima;
+            $setting->ac4_piutang_penerima          = $request->ac4_piutang_penerima;
+            $setting->ac4_hutang                    = $request->ac4_hutang;
+            $setting->ac4_biaya                     = $request->ac4_biaya;
+            $setting->id_perush                     = $id_perush;
+            $setting->save();
+            
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', 'Data Setting Handling Gagal Disimpan '.$e->getMessage());
+        }
+        
+        return redirect(route_redirect())->with('success', 'Data Setting Handling  Disimpan');
+    }
+
+    /**
+     * Show the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function show($id)
+    {
+        abort(404);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function edit($id)
+    {
+        $data["pendapatan"] = ACPerush::getChild();
+        $data["piutang"] = ACPerush::getChild();
+        $data["hutang"] = ACPerush::getChild();
+        $data["biaya"] = ACPerush::getChild();
+        $data["perush"] = Perusahaan::select("id_perush", "nm_perush")->where("id_perush", "!=", Session("perusahaan")["id_perush"])->get();
+        $data["data"] = SettingHandlingPerush::findOrFail($id);
+        
+        return view('keuangan::settinghandling.index', $data);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * @param Request $request
+     * @param int $id
+     * @return Response
+     */
+    public function update(Request $request, $id)
+    {
+        $id_perush = Session("perusahaan")["id_perush"];
+        $cek = SettingHandlingPerush::where("ac4_pend_penerima", $request->ac4_pend_penerima)
+        ->where("ac4_piutang_penerima", $request->ac4_piutang_penerima)
+        ->where("ac4_hutang", $request->ac4_hutang)
+        ->where("ac4_biaya", $request->ac4_biaya)
+        ->where("id_perush", $id_perush)
+        ->get()->first();
+        
+        if($cek!=null){
+            return redirect()->back()->with('error', 'Data Setting Handling Sudah Ada ! ');
+        }
+        
+        DB::beginTransaction();
+        try {
+            
+            $setting                                = SettingHandlingPerush::findOrFail($id);
+            $setting->id_user                       = Auth::user()->id_user;
+            $setting->ac4_pend_penerima             = $request->ac4_pend_penerima;
+            $setting->ac4_piutang_penerima          = $request->ac4_piutang_penerima;
+            $setting->ac4_hutang                    = $request->ac4_hutang;
+            $setting->ac4_biaya                     = $request->ac4_biaya;
+            $setting->id_perush                     = $id_perush;
+            $setting->save();
+            
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', 'Data Setting Handling Gagal Disimpan '.$e->getMessage());
+        }
+        
+        return redirect(route_redirect())->with('success', 'Data Setting Handling  Disimpan');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     * @param int $id
+     * @return Response
+     */
+    public function destroy($id)
+    {
+        DB::beginTransaction();
+        try {
+            
+            $setting                       = SettingHandlingPerush::findOrFail($id);
+            $setting->delete();
+            
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', 'Data Setting Handling Gagal Dihapus '.$e->getMessage());
+        }
+        
+        return redirect(route_redirect())->with('success', 'Data Setting Handling  Dihapus');
+    }
+}
